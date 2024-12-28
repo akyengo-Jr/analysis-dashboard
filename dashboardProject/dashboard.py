@@ -1,54 +1,101 @@
 import pandas as pd
+import numpy as np
 import plotly.express as px
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.svm import SVR
-from sklearn.metrics import mean_squared_error
-from sklearn.cluster import KMeans
-
 import streamlit as st
+import seaborn as sns
 
 st.set_page_config(layout='wide', page_title='Data Analytics Dashboard')
 
 st.title("Interactive Data Analytics Dashboard")
 
+# Function to add custom CSS
+def add_custom_css(file_path):
+    """
+    Apply custom CSS to the Streamlit app.
+
+    Parameters:
+    file_path (str): The path to the CSS file.
+    """
+    with open(file_path) as f:
+      st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+
+# Call the function to apply custom CSS
+add_custom_css("style.css")
+
 # File uploader for dynamic dataset loading
 uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
 if uploaded_file is not None:
-  data = pd.read_csv(uploaded_file)
-  st.sidebar.success("File uploaded successfully!")
+  try:
+    data = pd.read_csv(uploaded_file)
+    st.sidebar.success("File uploaded successfully!")
+  except Exception as e:
+    st.sidebar.error(f"Error reading the CSV file: {e}")
+    st.stop()
 else:
   st.sidebar.warning("Please upload a CSV file.")
   st.stop()
 
+# Initialize data_cleaned with the original data
+data_cleaned = data.copy()
 
 # Data cleaning options
 st.sidebar.header("Data Cleaning Options")
 cleaning_option = st.sidebar.selectbox("Choose cleaning method", ["Drop missing values", "Fill missing values"])
 
 if cleaning_option == "Drop missing values":
-  data.dropna(inplace=True)
+  data_cleaned = data_cleaned.dropna()
 elif cleaning_option == "Fill missing values":
   fill_method = st.sidebar.radio("Fill missing values with:", ["Mean", "Custom Value"])
   if fill_method == "Mean":
-    data.fillna(data.mean(numeric_only=True), inplace=True)
+    data_cleaned = data_cleaned.fillna(data_cleaned.mean(numeric_only=True))
   else:
     fill_value = st.sidebar.text_input("Enter value to fill missing data", "0")
-    data.fillna(fill_value, inplace=True)
+    try:
+      fill_value = float(fill_value)
+    except ValueError:
+      pass
+    data_cleaned = data_cleaned.fillna(fill_value)
+
+# Function to convert non-numeric columns to numeric
+def convert_columns_to_numeric(data, columns):
+    """
+    Convert non-numeric columns to numeric by factorizing them.
+
+    Parameters:
+    data (pd.DataFrame): The dataframe containing the data.
+    columns (list): List of column names to convert to numeric.
+
+    Returns:
+    pd.DataFrame: The dataframe with specified columns converted to numeric.
+  """
+    for column in columns:
+        data[column], _ = pd.factorize(data[column])
+        data[column] = data[column].astype(float)
+    return data
+
+# Convert non-numeric columns to numeric
+st.sidebar.header("Convert Data Types")
+convert_columns = st.sidebar.multiselect("Select columns to convert to numeric", data_cleaned.select_dtypes(include=['object']).columns)
+if st.sidebar.button("Convert Selected Columns"):
+  data_cleaned = convert_columns_to_numeric(data_cleaned, convert_columns)
+  st.sidebar.success("Selected columns converted to numeric successfully!")
 
 # Column selection for dropping
-st.sidebar.header("Drop Columns")
-columns_to_drop = st.sidebar.multiselect("Select columns to drop", data.columns)
+columns_to_drop = st.sidebar.multiselect("Select columns to drop", data_cleaned.columns)
 if st.sidebar.button("Drop Selected Columns"):
-  data.drop(columns=columns_to_drop, inplace=True)
+  data_cleaned = data_cleaned.drop(columns=columns_to_drop)
+  data = data_cleaned  # Update the main data variable
   st.sidebar.success("Selected columns dropped successfully!")
 
 # Save cleaned dataset
+st.sidebar.header("Save Cleaned Dataset")
+cleaned_file_path = st.sidebar.text_input("Enter file path to save cleaned dataset", "/home/goodness/Notebooks/dashboardProject/cleaned_data.csv")
 if st.sidebar.button("Save Cleaned Dataset"):
-  cleaned_file_path = "/home/goodness/Notebooks/dashboardProject/cleaned_data.csv"
-  data.to_csv(cleaned_file_path, index=False)
-  st.sidebar.success(f"Cleaned dataset saved to {cleaned_file_path}")
+  try:
+    data_cleaned.to_csv(cleaned_file_path, index=False)  # save the cleaned data to a csv file
+    st.sidebar.success(f"Cleaned dataset saved to {cleaned_file_path}")
+  except Exception as e:
+    st.sidebar.error(f"Error saving the cleaned dataset: {e}")
 
 st.markdown('---')
 st.header("Dataset Overview")
@@ -57,23 +104,24 @@ st.dataframe(data.head())
 st.subheader("Dataset Description")
 st.write(data.describe())
 
-# Visualization (using Plotly Express):
-st.markdown('---')
-st.header("Visualizations")
+st.header("Data Visualization")
+
+# Apply seaborn theme
+sns.set_theme(style="darkgrid")
 
 # Bar chart example
 st.subheader("Bar Chart")
 x_column = st.selectbox("Select X-axis column for Bar Chart", data.columns)
 y_column = st.selectbox("Select Y-axis column for Bar Chart", data.columns)
-bar_chart = px.bar(data, x=x_column, y=y_column)
+bar_chart = px.bar(data, x=x_column, y=y_column, title="Bar Chart")
 st.plotly_chart(bar_chart)
 
 # Scatter plot example
 st.subheader("Scatter Plot")
 x_scatter = st.selectbox("Select X-axis column for Scatter Plot", data.columns, key='scatter_x')
 y_scatter = st.selectbox("Select Y-axis column for Scatter Plot", data.columns, key='scatter_y')
-scatter_chart = px.scatter(data, x=x_scatter, y=y_scatter, title="Scatter Plot")
-st.plotly_chart(scatter_chart)
+scatter_plot = px.scatter(data, x=x_scatter, y=y_scatter, title="Scatter Plot")
+st.plotly_chart(scatter_plot)
 
 # Line chart example
 st.subheader("Line Chart")
@@ -85,76 +133,12 @@ st.plotly_chart(line_chart)
 # Histogram example
 st.subheader("Histogram")
 hist_column = st.selectbox("Select column for Histogram", data.columns, key='hist')
-hist_chart = px.histogram(data, x=hist_column, title="Histogram")
-st.plotly_chart(hist_chart)
+histogram = px.histogram(data, x=hist_column, title="Histogram")
+st.plotly_chart(histogram)
 
 # Box plot example
 st.subheader("Box Plot")
 x_box = st.selectbox("Select X-axis column for Box Plot", data.columns, key='box_x')
 y_box = st.selectbox("Select Y-axis column for Box Plot", data.columns, key='box_y')
-box_chart = px.box(data, x=x_box, y=y_box, title="Box Plot")
-st.plotly_chart(box_chart)
-
-# Predictive Modeling (example)
-st.markdown('---')
-st.header("Predictive Modeling")
-
-model_options = ["Linear Regression", "Random Forest", "Support Vector Machine"]
-selected_model = st.selectbox("Select Model", model_options)
-
-features = st.multiselect("Select features for prediction", data.columns)
-target = st.selectbox("Select target variable", data.columns)
-
-if features and target:
-  X = data[features]
-  y = data[target]
-
-  X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
-
-  if selected_model == "Linear Regression":
-    model = LinearRegression()
-  elif selected_model == "Random Forest":
-    model = RandomForestRegressor()
-  elif selected_model == "Support Vector Machine":
-    model = SVR()
-
-  model.fit(X_train, y_train)
-  y_pred = model.predict(X_test)
-  st.write("Predictions:", y_pred)  # Display predictions
-
-  # Evaluation (example)
-  mse = mean_squared_error(y_test, y_pred)
-  st.write("Mean Squared Error:", mse)
-else:
-  st.warning("Please select features and target variable for prediction.")
-
-# Unsupervised Learning (example)
-st.markdown('---')
-st.header("Unsupervised Learning")
-
-clustering_options = ["K-Means"]
-selected_clustering = st.selectbox("Select Clustering Algorithm", clustering_options)
-
-clustering_features = st.multiselect("Select features for clustering", data.columns)
-
-if clustering_features:
-  X_clustering = data[clustering_features]
-
-  if selected_clustering == "K-Means":
-    n_clusters = st.slider("Select number of clusters", min_value=2, max_value=10, value=3)
-    kmeans = KMeans(n_clusters=n_clusters)
-    data['Cluster'] = kmeans.fit_predict(X_clustering)
-    st.write("Cluster Centers:", kmeans.cluster_centers_)
-
-    # Visualization of clusters
-    cluster_chart = px.scatter(data, x=clustering_features[0], y=clustering_features[1], color='Cluster', title="K-Means Clustering")
-    st.plotly_chart(cluster_chart)
-else:
-  st.warning("Please select features for clustering.")
-
-# Sidebar for interactive elements
-st.sidebar.title("Interactive Elements")
-st.sidebar.markdown('Click on "Explore Your Data" to see the first few rows and interact with the chart.')
-
-if st.sidebar.button("Load Data"):
-  st.plotly_chart(px.bar(data, x=x_column, y=y_column))  # Display bar chart
+box_plot = px.box(data, x=x_box, y=y_box, title="Box Plot")
+st.plotly_chart(box_plot)

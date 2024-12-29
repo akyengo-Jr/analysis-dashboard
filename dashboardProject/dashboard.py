@@ -31,6 +31,19 @@ def load_data(uploaded_file):
         st.sidebar.error(f"Error reading the CSV file: {e}")
         st.stop()
 
+def drop_columns(data, columns):
+    """
+    Drop specified columns from the dataframe.
+    
+    Args:
+        data (DataFrame): The dataframe from which to drop columns.
+        columns (list): List of columns to drop.
+    
+    Returns:
+        DataFrame: The dataframe with specified columns dropped.
+    """
+    return data.drop(columns=columns, errors='ignore')
+
 def clean_data(data, cleaning_option):
     """
     Clean the data based on the selected cleaning option.
@@ -55,11 +68,40 @@ def generate_summary_statistics(data):
     st.subheader("Summary Statistics")
     st.write(data.describe())
 
-def filter_data(data, column, filter_value):
-    
-   # Filter data based on a specified column and value.
-    return data[data[column] == filter_value]
+def filter_data(data, column, filter_value, filter_type='exact'):
+    """
+    Filter data based on a specified column, value, and filter type.
 
+    Args:
+        data (DataFrame): The dataframe to filter.
+        column (str): The column to filter on.
+        filter_value (str or numeric): The value to filter by.
+        filter_type (str): The type of filter ('exact', 'partial', 'range').
+
+    Returns:
+        DataFrame: The filtered dataframe.
+    """
+    if column not in data.columns:
+        logger.error(f"Column '{column}' not found in the data.")
+        st.sidebar.error(f"Column '{column}' not found in the data.")
+        return data
+
+    try:
+        if filter_type == 'exact':
+            return data[data[column] == filter_value]
+        elif filter_type == 'partial':
+            return data[data[column].astype(str).str.contains(str(filter_value))]
+        elif filter_type == 'range':
+            if isinstance(filter_value, (list, tuple)) and len(filter_value) == 2:
+                return data[(data[column] >= filter_value[0]) & (data[column] <= filter_value[1])]
+            else:
+                raise ValueError("For 'range' filter type, filter_value must be a list or tuple with two elements.")
+        else:
+            raise ValueError(f"Invalid filter_type: {filter_type}")
+    except Exception as e:
+        logger.error(f"Error filtering data: {e}")
+        st.sidebar.error(f"Error filtering data: {e}")
+        return data
 def convert_columns_to_numeric(data, columns):
 
    # Convert specified columns to numeric type.
@@ -107,7 +149,11 @@ filter_value = st.sidebar.text_input("Enter value to filter by")
 
 def apply_filter():
     return filter_data(data_cleaned, filter_column, filter_value)
+st.sidebar.header("Data Cleaning Options")
+cleaning_option = st.sidebar.selectbox("Choose cleaning method", ["Drop missing values", "Fill missing values"])
 
+
+data_cleaned = clean_data(data, cleaning_option)
 if st.sidebar.button("Filter Data"):
     data_cleaned = apply_filter()
     st.sidebar.success("Data filtered successfully!")

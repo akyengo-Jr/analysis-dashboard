@@ -137,7 +137,6 @@ drop_columns_option = st.sidebar.multiselect("Select columns to drop", data_clea
 if st.sidebar.button("Drop Selected Columns"):
     data_cleaned = drop_columns(data_cleaned, drop_columns_option)
     st.sidebar.success("Selected columns dropped successfully!")
-    st.experimental_rerun()
 
 # Data filtering options
 st.sidebar.header("Data Filtering Options")

@@ -1,80 +1,50 @@
-/* General settings */
 body {
-    font-family: "Arial", sans-serif;
-    background-color: #f0f2f5;
+    background-color: #f0f2f6;
+    font-family: Arial, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
     color: #333;
-    margin: 0;
-    padding: 0;
 }
 
-/* Sidebar settings */
-.sidebar .sidebar-content {
-    background-color: #2c3e50;
-    color: white;
-    padding: 1rem;
+.stAlert {
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    padding: 15px;
 }
 
-.sidebar .sidebar-content h1, 
-.sidebar .sidebar-content h2, 
-.sidebar .sidebar-content h3, 
-.sidebar .sidebar-content h4, 
-.sidebar .sidebar-content h5, 
-.sidebar .sidebar-content h6 {
-    color: #ecf0f1;
+.stSidebar {
+    background-color: #f8f9fa;
 }
 
-.sidebar .sidebar-content .stButton button {
-    background-color: #3498db;
+.stButton > button {
+    background-color: #4CAF50;
     color: white;
     border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
+    border-radius: 5px;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
 }
 
-.sidebar .sidebar-content .stButton button:hover {
-    background-color: #2980b9;
+.stButton > button:hover {
+    background-color: #45a049;
 }
 
-/* Main content settings */
-.main .block-container {
-    padding: 2rem;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    margin: 1rem;
+.stTextInput > div > input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
 
-/* Header settings */
-.main h1, .main h2, .main h3, .main h4, .main h5, .main h6 {
-    color: #2c3e50;
-    margin-top: 0;
-}
-
-/* Dataframe settings */
-.main .stDataFrame {
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.main .stDataFrame table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.main .stDataFrame th, .main .stDataFrame td {
-    padding: 0.75rem;
-    text-align: left;
-    border-bottom: 1px solid #dee2e6;
-}
-
-.main .stDataFrame th {
-    background-color: #f8f9fa;
-    color: #2c3e50;
-}
-
-.main .stDataFrame tr:nth-child(even) {
-    background-color: #f2f2f2;
+.stDataFrame {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
 }

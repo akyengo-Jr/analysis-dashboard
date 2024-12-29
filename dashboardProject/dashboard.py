@@ -5,6 +5,10 @@ import streamlit as st
 import seaborn as sns
 import logging
 
+
+st.set_page_config(layout='wide', page_title='Data Analytics Dashboard')
+st.title("Interactive Data Analytics Dashboard")
+
 # Load CSS file
 with open("dashboardProject/style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
@@ -12,9 +16,6 @@ with open("dashboardProject/style.css") as f:
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-st.set_page_config(layout='wide', page_title='Data Analytics Dashboard')
-st.title("Interactive Data Analytics Dashboard")
 
 def load_data(uploaded_file):
     try:

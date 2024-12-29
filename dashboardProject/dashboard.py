@@ -6,20 +6,22 @@ import seaborn as sns
 import logging
 from io import BytesIO
 
-
-
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Set page config
 st.set_page_config(layout='wide', page_title='Data Analytics Dashboard')
 st.title("Interactive Data Analytics Dashboard")
 
-# Load CSS file
+# Load CSS file for styling
 with open("dashboardProject/style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-    
+
 def load_data(uploaded_file):
+
+    # Load data from a CSV file.
+   
     try:
         data = pd.read_csv(uploaded_file)
         st.sidebar.success("File uploaded successfully!")
@@ -30,6 +32,9 @@ def load_data(uploaded_file):
         st.stop()
 
 def clean_data(data, cleaning_option):
+    """
+    Clean the data based on the selected cleaning option.
+    """
     data_cleaned = data.copy()
     if cleaning_option == "Drop missing values":
         data_cleaned = data_cleaned.dropna()
@@ -45,14 +50,28 @@ def clean_data(data, cleaning_option):
                 pass
             data_cleaned = data_cleaned.fillna(fill_value)
     return data_cleaned
+# summary statistics
+def generate_summary_statistics(data):
+    st.subheader("Summary Statistics")
+    st.write(data.describe())
+
+def filter_data(data, column, filter_value):
+    
+   # Filter data based on a specified column and value.
+    return data[data[column] == filter_value]
 
 def convert_columns_to_numeric(data, columns):
+
+   # Convert specified columns to numeric type.
+
     for column in columns:
         data[column], _ = pd.factorize(data[column])
         data[column] = data[column].astype(float)
     return data
 
 def save_cleaned_data(data_cleaned):
+     #  Save the cleaned data to a CSV file and provide a download button.
+    
     try:
         towrite = BytesIO()
         data_cleaned.to_csv(towrite, index=False)
@@ -68,6 +87,7 @@ def save_cleaned_data(data_cleaned):
         logger.error(f"Error preparing the cleaned dataset for download: {e}")
         st.sidebar.error(f"Error preparing the cleaned dataset for download: {e}")
 
+# File uploader for CSV files
 uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
 if uploaded_file is not None:
     data = load_data(uploaded_file)
@@ -75,31 +95,49 @@ else:
     st.sidebar.warning("Please upload a CSV file.")
     st.stop()
 
+# Data cleaning options
 st.sidebar.header("Data Cleaning Options")
 cleaning_option = st.sidebar.selectbox("Choose cleaning method", ["Drop missing values", "Fill missing values"])
 data_cleaned = clean_data(data, cleaning_option)
 
+# Data filtering options
+st.sidebar.header("Data Filtering Options")
+filter_column = st.sidebar.selectbox("Select column to filter", options=data_cleaned.columns)
+filter_value = st.sidebar.text_input("Enter value to filter by")
+
+def apply_filter():
+    return filter_data(data_cleaned, filter_column, filter_value)
+
+if st.sidebar.button("Filter Data"):
+    data_cleaned = apply_filter()
+    st.sidebar.success("Data filtered successfully!")
+
+# Convert data types options
 st.sidebar.header("Convert Data Types")
 convert_columns = st.sidebar.multiselect("Select columns to convert to numeric", data_cleaned.select_dtypes(include=['object']).columns)
 if st.sidebar.button("Convert Selected Columns"):
     data_cleaned = convert_columns_to_numeric(data_cleaned, convert_columns)
     st.sidebar.success("Selected columns converted to numeric successfully!")
 
+# Save cleaned dataset
 st.sidebar.header("Save Cleaned Dataset")
 if st.sidebar.button("Prepare Cleaned Dataset for Download"):
     save_cleaned_data(data_cleaned)
 
+# Display dataset statistics
 st.markdown('---')
 st.header("Dataset Overview")
 st.dataframe(data.head())
 
-st.subheader("Dataset Description")
-st.write(data.describe())
-
+generate_summary_statistics(data)
+# Data visualization section
 st.header("Data Visualization")
 sns.set_theme(style="darkgrid")
 
 def plot_chart(chart_type, data, x_column, y_column):
+
+  #  Plot chart based on the selected type and columns.
+
     if chart_type == "Bar Chart":
         chart = px.bar(data, x=x_column, y=y_column, title="Bar Chart")
     elif chart_type == "Scatter Plot":
@@ -112,6 +150,7 @@ def plot_chart(chart_type, data, x_column, y_column):
         chart = px.box(data, x=x_column, y=y_column, title="Box Plot")
     st.plotly_chart(chart)
 
+# Display chart types for visualization
 chart_types = ["Bar Chart", "Scatter Plot", "Line Chart", "Histogram", "Box Plot"]
 for chart_type in chart_types:
     st.subheader(chart_type)

@@ -8,7 +8,7 @@ st.set_page_config(layout='wide', page_title='Data Analytics Dashboard')
 
 st.title("Interactive Data Analytics Dashboard")
 
-# Function to add custom CSS
+'''Function to add custom CSS
 def add_custom_css(file_path):
     """
     Apply custom CSS to the Streamlit app.
@@ -21,7 +21,7 @@ def add_custom_css(file_path):
 
 # Call the function to apply custom CSS
 add_custom_css("style.css")
-
+'''
 # File uploader for dynamic dataset loading
 uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
 if uploaded_file is not None:

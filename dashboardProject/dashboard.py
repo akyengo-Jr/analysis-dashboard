@@ -19,9 +19,7 @@ with open("dashboardProject/style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 def load_data(uploaded_file):
-
-    # Load data from a CSV file.
-   
+    """Load data from a CSV file."""
     try:
         data = pd.read_csv(uploaded_file)
         st.sidebar.success("File uploaded successfully!")
@@ -32,22 +30,11 @@ def load_data(uploaded_file):
         st.stop()
 
 def drop_columns(data, columns):
-    """
-    Drop specified columns from the dataframe.
-    
-    Args:
-        data (DataFrame): The dataframe from which to drop columns.
-        columns (list): List of columns to drop.
-    
-    Returns:
-        DataFrame: The dataframe with specified columns dropped.
-    """
+    """Drop specified columns from the dataframe."""
     return data.drop(columns=columns, errors='ignore')
 
 def clean_data(data, cleaning_option):
-    """
-    Clean the data based on the selected cleaning option.
-    """
+    """Clean the data based on the selected cleaning option."""
     data_cleaned = data.copy()
     if cleaning_option == "Drop missing values":
         data_cleaned = data_cleaned.dropna()
@@ -63,24 +50,38 @@ def clean_data(data, cleaning_option):
                 pass
             data_cleaned = data_cleaned.fillna(fill_value)
     return data_cleaned
-# summary statistics
+
+def convert_columns_to_numeric(data, columns):
+    """Convert specified columns to numeric type."""
+    for column in columns:
+        data[column], _ = pd.factorize(data[column])
+        data[column] = data[column].astype(float)
+    return data
+
+def save_cleaned_data(data_cleaned):
+    """Save the cleaned data to a CSV file and provide a download button."""
+    try:
+        towrite = BytesIO()
+        data_cleaned.to_csv(towrite, index=False)
+        towrite.seek(0)
+        st.sidebar.download_button(
+            label="Download Cleaned Data as CSV",
+            data=towrite,
+            file_name='cleaned_data.csv',
+            mime='text/csv'
+        )
+        st.sidebar.success("Cleaned dataset ready for download!")
+    except Exception as e:
+        logger.error(f"Error preparing the cleaned dataset for download: {e}")
+        st.sidebar.error(f"Error preparing the cleaned dataset for download: {e}")
+
 def generate_summary_statistics(data):
+    """Generate and display summary statistics of the dataset."""
     st.subheader("Summary Statistics")
     st.write(data.describe())
 
 def filter_data(data, column, filter_value, filter_type='exact'):
-    """
-    Filter data based on a specified column, value, and filter type.
-
-    Args:
-        data (DataFrame): The dataframe to filter.
-        column (str): The column to filter on.
-        filter_value (str or numeric): The value to filter by.
-        filter_type (str): The type of filter ('exact', 'partial', 'range').
-
-    Returns:
-        DataFrame: The filtered dataframe.
-    """
+    """Filter data based on a specified column, value, and filter type."""
     if column not in data.columns:
         logger.error(f"Column '{column}' not found in the data.")
         st.sidebar.error(f"Column '{column}' not found in the data.")
@@ -102,32 +103,20 @@ def filter_data(data, column, filter_value, filter_type='exact'):
         logger.error(f"Error filtering data: {e}")
         st.sidebar.error(f"Error filtering data: {e}")
         return data
-def convert_columns_to_numeric(data, columns):
 
-   # Convert specified columns to numeric type.
-
-    for column in columns:
-        data[column], _ = pd.factorize(data[column])
-        data[column] = data[column].astype(float)
-    return data
-
-def save_cleaned_data(data_cleaned):
-     #  Save the cleaned data to a CSV file and provide a download button.
-    
-    try:
-        towrite = BytesIO()
-        data_cleaned.to_csv(towrite, index=False)
-        towrite.seek(0)
-        st.sidebar.download_button(
-            label="Download Cleaned Data as CSV",
-            data=towrite,
-            file_name='cleaned_data.csv',
-            mime='text/csv'
-        )
-        st.sidebar.success("Cleaned dataset ready for download!")
-    except Exception as e:
-        logger.error(f"Error preparing the cleaned dataset for download: {e}")
-        st.sidebar.error(f"Error preparing the cleaned dataset for download: {e}")
+def plot_chart(chart_type, data, x_column, y_column):
+    """Plot chart based on the selected type and columns."""
+    if chart_type == "Bar Chart":
+        chart = px.bar(data, x=x_column, y=y_column, title="Bar Chart")
+    elif chart_type == "Scatter Plot":
+        chart = px.scatter(data, x=x_column, y=y_column, title="Scatter Plot")
+    elif chart_type == "Line Chart":
+        chart = px.line(data, x=x_column, y=y_column, title="Line Chart")
+    elif chart_type == "Histogram":
+        chart = px.histogram(data, x=x_column, title="Histogram")
+    elif chart_type == "Box Plot":
+        chart = px.box(data, x=x_column, y=y_column, title="Box Plot")
+    st.plotly_chart(chart)
 
 # File uploader for CSV files
 uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
@@ -142,20 +131,21 @@ st.sidebar.header("Data Cleaning Options")
 cleaning_option = st.sidebar.selectbox("Choose cleaning method", ["Drop missing values", "Fill missing values"])
 data_cleaned = clean_data(data, cleaning_option)
 
+# Drop columns option
+st.sidebar.header("Drop Columns")
+drop_columns_option = st.sidebar.multiselect("Select columns to drop", data_cleaned.columns)
+if st.sidebar.button("Drop Selected Columns"):
+    data_cleaned = drop_columns(data_cleaned, drop_columns_option)
+    st.sidebar.success("Selected columns dropped successfully!")
+
 # Data filtering options
 st.sidebar.header("Data Filtering Options")
 filter_column = st.sidebar.selectbox("Select column to filter", options=data_cleaned.columns)
 filter_value = st.sidebar.text_input("Enter value to filter by")
+filter_type = st.sidebar.selectbox("Select filter type", ["exact", "partial", "range"])
 
-def apply_filter():
-    return filter_data(data_cleaned, filter_column, filter_value)
-st.sidebar.header("Data Cleaning Options")
-cleaning_option = st.sidebar.selectbox("Choose cleaning method", ["Drop missing values", "Fill missing values"])
-
-
-data_cleaned = clean_data(data, cleaning_option)
 if st.sidebar.button("Filter Data"):
-    data_cleaned = apply_filter()
+    data_cleaned = filter_data(data_cleaned, filter_column, filter_value, filter_type)
     st.sidebar.success("Data filtered successfully!")
 
 # Convert data types options
@@ -170,31 +160,16 @@ st.sidebar.header("Save Cleaned Dataset")
 if st.sidebar.button("Prepare Cleaned Dataset for Download"):
     save_cleaned_data(data_cleaned)
 
-# Display dataset statistics
+# Display dataset overview and statistics
 st.markdown('---')
 st.header("Dataset Overview")
 st.dataframe(data.head())
 
 generate_summary_statistics(data)
+
 # Data visualization section
 st.header("Data Visualization")
 sns.set_theme(style="darkgrid")
-
-def plot_chart(chart_type, data, x_column, y_column):
-
-  #  Plot chart based on the selected type and columns.
-
-    if chart_type == "Bar Chart":
-        chart = px.bar(data, x=x_column, y=y_column, title="Bar Chart")
-    elif chart_type == "Scatter Plot":
-        chart = px.scatter(data, x=x_column, y=y_column, title="Scatter Plot")
-    elif chart_type == "Line Chart":
-        chart = px.line(data, x=x_column, y=y_column, title="Line Chart")
-    elif chart_type == "Histogram":
-        chart = px.histogram(data, x=x_column, title="Histogram")
-    elif chart_type == "Box Plot":
-        chart = px.box(data, x=x_column, y=y_column, title="Box Plot")
-    st.plotly_chart(chart)
 
 # Display chart types for visualization
 chart_types = ["Bar Chart", "Scatter Plot", "Line Chart", "Histogram", "Box Plot"]

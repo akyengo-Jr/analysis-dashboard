@@ -4,7 +4,13 @@ import plotly.express as px
 import streamlit as st
 import seaborn as sns
 import logging
+from io import BytesIO
 
+
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 st.set_page_config(layout='wide', page_title='Data Analytics Dashboard')
 st.title("Interactive Data Analytics Dashboard")
@@ -12,11 +18,7 @@ st.title("Interactive Data Analytics Dashboard")
 # Load CSS file
 with open("dashboardProject/style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
-# Setup logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
+    
 def load_data(uploaded_file):
     try:
         data = pd.read_csv(uploaded_file)
@@ -50,13 +52,21 @@ def convert_columns_to_numeric(data, columns):
         data[column] = data[column].astype(float)
     return data
 
-def save_cleaned_data(data_cleaned, cleaned_file_path):
+def save_cleaned_data(data_cleaned):
     try:
-        data_cleaned.to_csv(cleaned_file_path, index=False)
-        st.sidebar.success(f"Cleaned dataset saved to {cleaned_file_path}")
+        towrite = BytesIO()
+        data_cleaned.to_csv(towrite, index=False)
+        towrite.seek(0)
+        st.sidebar.download_button(
+            label="Download Cleaned Data as CSV",
+            data=towrite,
+            file_name='cleaned_data.csv',
+            mime='text/csv'
+        )
+        st.sidebar.success("Cleaned dataset ready for download!")
     except Exception as e:
-        logger.error(f"Error saving the cleaned dataset: {e}")
-        st.sidebar.error(f"Error saving the cleaned dataset: {e}")
+        logger.error(f"Error preparing the cleaned dataset for download: {e}")
+        st.sidebar.error(f"Error preparing the cleaned dataset for download: {e}")
 
 uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
 if uploaded_file is not None:
@@ -76,9 +86,8 @@ if st.sidebar.button("Convert Selected Columns"):
     st.sidebar.success("Selected columns converted to numeric successfully!")
 
 st.sidebar.header("Save Cleaned Dataset")
-cleaned_file_path = st.sidebar.text_input("Enter file path to save cleaned dataset", "/home/goodness/Notebooks/dashboardProject/cleaned_data.csv")
-if st.sidebar.button("Save Cleaned Dataset"):
-    save_cleaned_data(data_cleaned, cleaned_file_path)
+if st.sidebar.button("Prepare Cleaned Dataset for Download"):
+    save_cleaned_data(data_cleaned)
 
 st.markdown('---')
 st.header("Dataset Overview")

@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Set page config
-st.set_page_config(layout='wide', page_title='Data Analytics Dashboard')
+st.set_page_config(layout='centered', page_title='Data Analytics Dashboard', menu_items={})
 st.title("Interactive Data Analytics Dashboard")
 
 # Load CSS file for styling

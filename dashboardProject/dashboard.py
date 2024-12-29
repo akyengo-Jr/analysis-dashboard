@@ -73,7 +73,7 @@ if st.sidebar.button("Drop Selected Columns"):
   data = data_cleaned  # Update the main data variable
   st.sidebar.success("Selected columns dropped successfully!")
 
-# Save cleaned dataset
+'''save cleaned dataset
 st.sidebar.header("Save Cleaned Dataset")
 cleaned_file_path = st.sidebar.text_input("Enter file path to save cleaned dataset", "/home/goodness/Notebooks/dashboardProject/cleaned_data.csv")
 if st.sidebar.button("Save Cleaned Dataset"):
@@ -81,7 +81,7 @@ if st.sidebar.button("Save Cleaned Dataset"):
     data_cleaned.to_csv(cleaned_file_path, index=False)  # save the cleaned data to a csv file
     st.sidebar.success(f"Cleaned dataset saved to {cleaned_file_path}")
   except Exception as e:
-    st.sidebar.error(f"Error saving the cleaned dataset: {e}")
+    st.sidebar.error(f"Error saving the cleaned dataset: {e}")'''
 
 st.markdown('---')
 st.header("Dataset Overview")

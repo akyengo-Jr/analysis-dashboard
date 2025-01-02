@@ -130,15 +130,18 @@ if uploaded_file is not None:
 else:
     st.sidebar.warning("Please upload a CSV file.")
     st.stop()
+    
+# Check for null values.
+st.sidebar.header("Check for Null Values")
+if st.sidebar.button("Check Null Values"):
+    check_null_values(data)
 
 # Data cleaning options
 st.sidebar.header("Data Cleaning Options")
 cleaning_option = st.sidebar.selectbox("Choose cleaning method", ["Drop missing values", "Fill missing values"])
 data_cleaned = clean_data(data, cleaning_option)
-# Check for null values.
-st.sidebar.header("Check for Null Values")
-if st.sidebar.button("Check Null Values"):
-    check_null_values(data)
+
+
 # Drop columns option
 st.sidebar.header("Drop Columns")
 drop_columns_option = st.sidebar.multiselect("Select columns to drop", data_cleaned.columns)

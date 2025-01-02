@@ -13,12 +13,17 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 st.set_page_config(layout='wide', page_title='Data Analytics Dashboard')
-st.title("Interactive Data Analytics Dashboard")
+st.title("Data Dashboard")
 
 # Load CSS file
 with open("dashboardProject/style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-    
+
+def check_null_values(data):
+    null_summary = data.isnull().sum()
+    st.write("Null Values Summary:")
+    st.dataframe(null_summary)
+
 def load_data(uploaded_file):
     try:
         data = pd.read_csv(uploaded_file)
@@ -71,6 +76,9 @@ def save_cleaned_data(data_cleaned):
 uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
 if uploaded_file is not None:
     data = load_data(uploaded_file)
+    st.sidebar.header("Null Values Check")
+    if st.sidebar.button("Check for Null Values"):
+        check_null_values(data)
 else:
     st.sidebar.warning("Please upload a CSV file.")
     st.stop()

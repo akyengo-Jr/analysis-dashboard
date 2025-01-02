@@ -12,12 +12,17 @@ logger = logging.getLogger(__name__)
 
 # Set page config
 st.set_page_config(layout='centered', page_title='Data Analytics Dashboard', menu_items={})
-st.title("Interactive Data Analytics Dashboard")
+st.title("Data Dashboard")
 
 # Load CSS file for styling
 with open("dashboardProject/style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
+def check_null_values(data):
+    null_summary = data.isnull().sum()
+    st.write("Summary of Null Values in Each Column:")
+    st.write(null_summary)
+    return null_summary
 def load_data(uploaded_file):
     """Load data from a CSV file."""
     try:
@@ -130,7 +135,10 @@ else:
 st.sidebar.header("Data Cleaning Options")
 cleaning_option = st.sidebar.selectbox("Choose cleaning method", ["Drop missing values", "Fill missing values"])
 data_cleaned = clean_data(data, cleaning_option)
-
+# Check for null values.
+st.sidebar.header("Check for Null Values")
+if st.sidebar.button("Check Null Values"):
+    check_null_values(data)
 # Drop columns option
 st.sidebar.header("Drop Columns")
 drop_columns_option = st.sidebar.multiselect("Select columns to drop", data_cleaned.columns)

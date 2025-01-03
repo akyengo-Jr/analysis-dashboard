@@ -1,32 +1,57 @@
+:root {
+    /* Light theme colors */
+    --bg-color-light: #f0f2f6;
+    --text-color-light: #333;
+    --alert-bg-color-light: #f9f9f9;
+    --alert-border-color-light: #ddd;
+    --sidebar-bg-color-light: #f8f9fa;
+    --button-bg-color-light: #4CAF50;
+    --button-hover-bg-color-light: #45a049;
+    --input-border-color-light: #ccc;
+    --dataframe-bg-color-light: #fff;
+    --dataframe-border-color-light: #ddd;
+
+    /* Dark theme colors */
+    --bg-color-dark: #1e1e1e;
+    --text-color-dark: #f0f0f0;
+    --alert-bg-color-dark: #2e2e2e;
+    --alert-border-color-dark: #444;
+    --sidebar-bg-color-dark: #2e2e2e;
+    --button-bg-color-dark: #4CAF50;
+    --button-hover-bg-color-dark: #45a049;
+    --input-border-color-dark: #555;
+    --dataframe-bg-color-dark: #2e2e2e;
+    --dataframe-border-color-dark: #444;
+}
+
 body {
-    background-color: #f0f2f6;
-    font-family: monospace, sans-serif;
+    background-color: var(--bg-color-light);
+    font-family: Arial, sans-serif;
 }
 
 h1, h2, h3, h4, h5, h6 {
-    color: #333;
+    color: var(--text-color-light);
 }
 
 .stAlert {
-    background-color: #f9f9f9;
+    background-color: var(--alert-bg-color-light);
     border-radius: 5px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--alert-border-color-light);
     padding: 15px;
 }
 
 .stSidebar {
-    background-color: #f8f9fa;
-    width: 100%; /* Make the sidebar flexible */
-    max-width: 300px; /* Set a maximum width */
+    background-color: var(--sidebar-bg-color-light);
 }
 
 .stButton > button {
-    background-color: #4CAF50;
+    background-color: var(--button-bg-color-light);
     color: white;
     border: none;
     border-radius: 5px;
     padding: 10px 20px;
     text-align: center;
+    text-decoration: none;
     display: inline-block;
     font-size: 16px;
     margin: 4px 2px;
@@ -34,25 +59,55 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .stButton > button:hover {
-    background-color: #45a049;
+    background-color: var(--button-hover-bg-color-light);
 }
 
 .stTextInput > div > input {
     padding: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--input-border-color-light);
     border-radius: 5px;
 }
 
 .stDataFrame {
-    background-color: #fff;
-    border: 1px solid #ddd;
+    background-color: var(--dataframe-bg-color-light);
+    border: 1px solid var(--dataframe-border-color-light);
     border-radius: 5px;
     padding: 10px;
 }
 
-/* Responsive design for expanders */
-@media (max-width: 768px) {
-    .stExpander {
-        width: 100%;
+/* Dark theme */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: var(--bg-color-dark);
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        color: var(--text-color-dark);
+    }
+
+    .stAlert {
+        background-color: var(--alert-bg-color-dark);
+        border: 1px solid var(--alert-border-color-dark);
+    }
+
+    .stSidebar {
+        background-color: var(--sidebar-bg-color-dark);
+    }
+
+    .stButton > button {
+        background-color: var(--button-bg-color-dark);
+    }
+
+    .stButton > button:hover {
+        background-color: var(--button-hover-bg-color-dark);
+    }
+
+    .stTextInput > div > input {
+        border: 1px solid var(--input-border-color-dark);
+    }
+
+    .stDataFrame {
+        background-color: var(--dataframe-bg-color-dark);
+        border: 1px solid var(--dataframe-border-color-dark);
     }
 }

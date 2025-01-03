@@ -32,7 +32,7 @@ with st.sidebar:
         string_columns = st.multiselect("Select columns to clean strings", [])
         unwanted_content = st.text_area("Enter unwanted content (regex supported)")
     with st.expander("Save Cleaned Dataset"):
-        st.button("Prepare Cleaned Dataset for Download")
+        st.button("Prepare Cleaned Dataset for Download", key="prepare_download")
 
 def load_data(uploaded_file):
     try:
@@ -119,24 +119,24 @@ if uploaded_file is not None:
     data_cleaned = data.copy()  # Initialize data_cleaned as a copy of data
 
     if null_management_option == "Check for Null Values":
-        if st.button("Check for Null Values"):
+        if st.button("Check for Null Values", key="check_null_values"):
             check_null_values(data)
     elif null_management_option == "Clean Data":
         cleaning_option = st.selectbox("Choose cleaning method", ["Drop missing values", "Fill missing values"])
         data_cleaned = clean_data(data, cleaning_option)
 
-    if date_management_option == "Filter by Date" and st.button("Apply Date Filter"):
+    if date_management_option == "Filter by Date" and st.button("Apply Date Filter", key="apply_date_filter"):
         data_cleaned = filter_by_date(data_cleaned, date_column, start_date, end_date)
         st.success("Data filtered by date successfully!")
-    elif date_management_option == "Convert to Proper Date Type" and st.button("Convert Date Type"):
+    elif date_management_option == "Convert to Proper Date Type" and st.button("Convert Date Type", key="convert_date_type"):
         data_cleaned = convert_to_proper_date_type(data_cleaned, date_column)
         st.success("Date type conversion successful!")
 
-    if st.button("Clean Strings"):
+    if st.button("Clean Strings", key="clean_strings"):
         data_cleaned = clean_strings(data_cleaned, string_columns, unwanted_content)
         st.success("Strings cleaned successfully!")
 
-    if st.button("Prepare Cleaned Dataset for Download"):
+    if st.button("Prepare Cleaned Dataset for Download", key="prepare_download"):
         save_cleaned_data(data_cleaned)
 
     st.markdown('---')

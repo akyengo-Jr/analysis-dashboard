@@ -142,8 +142,7 @@ elif date_management_option == "Convert to Proper Date Type" and st.sidebar.butt
     data_cleaned = convert_to_proper_date_type(data_cleaned, date_column)
     st.sidebar.success("Date type conversion successful!")
 else:
-    pass
-
+    st.sidebar.error("Date task not performed")
 # String cleaning options
 st.sidebar.header("String Cleaning")
 string_columns = st.sidebar.multiselect("Select columns to clean strings", data_cleaned.select_dtypes(include=['object']).columns)

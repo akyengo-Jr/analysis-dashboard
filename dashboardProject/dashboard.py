@@ -12,9 +12,15 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Set page config
-st.set_page_config(layout='wide', page_title='Data Analytics Dashboard')
+st.set_page_config(layout='centered', page_title='Data Dashboard')
 st.title("Data Dashboard")
 
+st.markdown(
+    """
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    """,
+    unsafe_allow_html=True
+)
 # Load CSS file
 with open("dashboardProject/style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)

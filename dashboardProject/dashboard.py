@@ -87,6 +87,10 @@ def add_date_features(data, date_column):
     data['weekday'] = data[date_column].dt.weekday
     return data
 
+def convert_to_proper_date_type(data, date_column):
+    data[date_column] = pd.to_datetime(data[date_column], errors='coerce')
+    return data
+
 # String cleaning functions
 def clean_strings(data, columns, unwanted_content):
     for column in columns:
@@ -125,7 +129,7 @@ if st.sidebar.button("Prepare Cleaned Dataset for Download"):
 
 # Date management options in dropdown menu
 st.sidebar.header("Date Management")
-date_management_option = st.sidebar.selectbox("Choose date management option", ["Filter by Date", "Add Date Features"])
+date_management_option = st.sidebar.selectbox("Choose date management option", ["Filter by Date", "Add Date Features", "Convert to Proper Date Type"])
 date_column = st.sidebar.selectbox("Select date column", options=data_cleaned.columns)
 start_date = st.sidebar.date_input("Start date")
 end_date = st.sidebar.date_input("End date")
@@ -136,6 +140,9 @@ if date_management_option == "Filter by Date" and st.sidebar.button("Apply Date 
 elif date_management_option == "Add Date Features" and st.sidebar.button("Add Date Features"):
     data_cleaned = add_date_features(data_cleaned, date_column)
     st.sidebar.success("Date features added successfully!")
+elif date_management_option == "Convert to Proper Date Type" and st.sidebar.button("Convert Date Type"):
+    data_cleaned = convert_to_proper_date_type(data_cleaned, date_column)
+    st.sidebar.success("Date type conversion successful!")
 
 # String cleaning options
 st.sidebar.header("String Cleaning")

@@ -96,6 +96,7 @@ def clean_strings(data, columns, unwanted_content):
 uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
 if uploaded_file is not None:
     data = load_data(uploaded_file)
+    data_cleaned = data.copy()  # Initialize data_cleaned as a copy of data
 else:
     st.sidebar.warning("Please upload a CSV file.")
     st.stop()

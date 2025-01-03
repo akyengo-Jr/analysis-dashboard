@@ -18,22 +18,6 @@ st.title("Data Dashboard")
 # Load CSS file
 with open("dashboardProject/style.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
-# Sidebar with expanders
-with st.sidebar:
-    st.header("Sidebar Menu")
-    with st.expander("Upload CSV"):
-        uploaded_file = st.file_uploader("Upload your CSV file", type=["csv"])
-    with st.expander("Null Values Management"):
-        null_management_option = st.selectbox("Choose null values management option", ["Check for Null Values", "Clean Data"])
-    with st.expander("Date Management"):
-        date_management_option = st.selectbox("Choose date management option", ["Filter by Date", "Convert to Proper Date Type"])
-    with st.expander("String Cleaning"):
-        string_columns = st.multiselect("Select columns to clean strings", [])
-        unwanted_content = st.text_area("Enter unwanted content (regex supported)")
-    with st.expander("Save Cleaned Dataset"):
-        st.button("Prepare Cleaned Dataset for Download", key="prepare_download")
-
 def load_data(uploaded_file):
     try:
         data = pd.read_csv(uploaded_file)
@@ -113,6 +97,22 @@ def clean_strings(data, columns, unwanted_content):
     for column in columns:
         data[column] = data[column].replace(unwanted_content, '', regex=True)
     return data
+
+# Sidebar with expanders
+with st.sidebar:
+    st.header("Sidebar Menu")
+    with st.expander("Upload CSV"):
+        uploaded_file = st.file_uploader("Upload your CSV file", type=["csv"])
+    with st.expander("Null Values Management"):
+        null_management_option = st.selectbox("Choose null values management option", ["Check for Null Values", "Clean Data"])
+    with st.expander("Date Management"):
+        date_management_option = st.selectbox("Choose date management option", ["Filter by Date", "Convert to Proper Date Type"])
+    with st.expander("String Cleaning"):
+        string_columns = st.multiselect("Select columns to clean strings", [])
+        unwanted_content = st.text_area("Enter unwanted content (regex supported)")
+    with st.expander("Save Cleaned Dataset"):
+        st.button("Prepare Cleaned Dataset for Download", key="prepare_download")
+
 
 if uploaded_file is not None:
     data = load_data(uploaded_file)

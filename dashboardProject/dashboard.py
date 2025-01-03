@@ -27,11 +27,11 @@ def check_null_values(data):
 def load_data(uploaded_file):
     try:
         data = pd.read_csv(uploaded_file)
-        st.sidebar.success("File uploaded successfully!")
+        st.success("File uploaded successfully!")
         return data
     except Exception as e:
         logger.error(f"Error reading the CSV file: {e}")
-        st.sidebar.error(f"Error reading the CSV file: {e}")
+        st.error(f"Error reading the CSV file: {e}")
         st.stop()
 
 def clean_data(data, cleaning_option):
@@ -39,11 +39,11 @@ def clean_data(data, cleaning_option):
     if cleaning_option == "Drop missing values":
         data_cleaned = data_cleaned.dropna()
     elif cleaning_option == "Fill missing values":
-        fill_method = st.sidebar.radio("Fill missing values with:", ["Mean", "Custom Value"])
+        fill_method = st.radio("Fill missing values with:", ["Mean", "Custom Value"])
         if fill_method == "Mean":
             data_cleaned = data_cleaned.fillna(data_cleaned.mean(numeric_only=True))
         else:
-            fill_value = st.sidebar.text_input("Enter value to fill missing data", "0")
+            fill_value = st.text_input("Enter value to fill missing data", "0")
             try:
                 fill_value = float(fill_value)
             except ValueError:
@@ -62,16 +62,16 @@ def save_cleaned_data(data_cleaned):
         towrite = BytesIO()
         data_cleaned.to_csv(towrite, index=False)
         towrite.seek(0)
-        st.sidebar.download_button(
+        st.download_button(
             label="Download Cleaned Data as CSV",
             data=towrite,
             file_name='cleaned_data.csv',
             mime='text/csv'
         )
-        st.sidebar.success("Cleaned dataset ready for download!")
+        st.success("Cleaned dataset ready for download!")
     except Exception as e:
         logger.error(f"Error preparing the cleaned dataset for download: {e}")
-        st.sidebar.error(f"Error preparing the cleaned dataset for download: {e}")
+        st.error(f"Error preparing the cleaned dataset for download: {e}")
 
 # Date management functions
 def filter_by_date(data, date_column, start_date, end_date):
@@ -83,7 +83,7 @@ def filter_by_date(data, date_column, start_date, end_date):
         return data.loc[mask]
     except Exception as e:
         logger.error(f"Error filtering data by date: {e}")
-        st.sidebar.error(f"Error filtering data by date: {e}")
+        st.error(f"Error filtering data by date: {e}")
         return pd.DataFrame()  # Return an empty DataFrame on error
 
 def convert_to_proper_date_type(data, date_column):
@@ -92,7 +92,7 @@ def convert_to_proper_date_type(data, date_column):
         return data
     except Exception as e:
         logger.error(f"Error converting to proper date type: {e}")
-        st.sidebar.error(f"Error converting to proper date type: {e}")
+        st.error(f"Error converting to proper date type: {e}")
         return pd.DataFrame()  # Return an empty DataFrame on error
     
 # String cleaning functions
@@ -101,86 +101,74 @@ def clean_strings(data, columns, unwanted_content):
         data[column] = data[column].replace(unwanted_content, '', regex=True)
     return data
 
-uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
+uploaded_file = st.file_uploader("Upload your CSV file", type=["csv"])
 if uploaded_file is not None:
     data = load_data(uploaded_file)
     data_cleaned = data.copy()  # Initialize data_cleaned as a copy of data
+
+    with st.expander("Null Values Management"):
+        null_management_option = st.selectbox("Choose null values management option", ["Check for Null Values", "Clean Data"])
+        if null_management_option == "Check for Null Values":
+            if st.button("Check for Null Values"):
+                check_null_values(data)
+        elif null_management_option == "Clean Data":
+            cleaning_option = st.selectbox("Choose cleaning method", ["Drop missing values", "Fill missing values"])
+            data_cleaned = clean_data(data, cleaning_option)
+
+    with st.expander("Date Management"):
+        date_management_option = st.selectbox("Choose date management option", ["Filter by Date", "Convert to Proper Date Type"])
+        date_column = st.selectbox("Select date column", options=data_cleaned.columns)
+        start_date = st.date_input("Start date")
+        end_date = st.date_input("End date")
+
+        if date_management_option == "Filter by Date" and st.button("Apply Date Filter"):
+            data_cleaned = filter_by_date(data_cleaned, date_column, start_date, end_date)
+            st.success("Data filtered by date successfully!")
+        elif date_management_option == "Convert to Proper Date Type" and st.button("Convert Date Type"):
+            data_cleaned = convert_to_proper_date_type(data_cleaned, date_column)
+            st.success("Date type conversion successful!")
+
+    with st.expander("String Cleaning"):
+        string_columns = st.multiselect("Select columns to clean strings", data_cleaned.select_dtypes(include=['object']).columns)
+        unwanted_content = st.text_area("Enter unwanted content (regex supported)")
+
+        if st.button("Clean Strings"):
+            data_cleaned = clean_strings(data_cleaned, string_columns, unwanted_content)
+            st.success("Strings cleaned successfully!")
+
+    with st.expander("Save Cleaned Dataset"):
+        if st.button("Prepare Cleaned Dataset for Download"):
+            save_cleaned_data(data_cleaned)
+
+    st.markdown('---')
+    st.header("Dataset Overview")
+    st.dataframe(data.head())
+
+    st.subheader("Dataset Description")
+    st.write(data.describe())
+
+    st.header("Data Visualization")
+    sns.set_theme(style="darkgrid")
+
+    def plot_chart(chart_type, data, x_column, y_column):
+        if chart_type == "Bar Chart":
+            chart = px.bar(data, x=x_column, y=y_column, title="Bar Chart")
+        elif chart_type == "Scatter Plot":
+            chart = px.scatter(data, x=x_column, y=y_column, title="Scatter Plot")
+        elif chart_type == "Line Chart":
+            chart = px.line(data, x=x_column, y=y_column, title="Line Chart")
+        elif chart_type == "Histogram":
+            chart = px.histogram(data, x=x_column, title="Histogram")
+        elif chart_type == "Box Plot":
+            chart = px.box(data, x=x_column, y=y_column, title="Box Plot")
+        st.plotly_chart(chart, use_container_width=True)
+
+    chart_types = ["Bar Chart", "Scatter Plot", "Line Chart", "Histogram", "Box Plot"]
+    for chart_type in chart_types:
+        st.subheader(chart_type)
+        x_column = st.selectbox(f"Select X-axis column for {chart_type}", data.columns, key=f'{chart_type}_x')
+        y_column = st.selectbox(f"Select Y-axis column for {chart_type}", data.columns, key=f'{chart_type}_y')
+        plot_chart(chart_type, data, x_column, y_column)
 else:
-    st.sidebar.warning("Please upload a CSV file.")
+    st.warning("Please upload a CSV file.")
     st.stop()
-
-# Null values checking and fixing options in dropdown menu
-st.sidebar.header("Null Values Management")
-null_management_option = st.sidebar.selectbox("Choose null values management option", ["Check for Null Values", "Clean Data"])
-if null_management_option == "Check for Null Values":
-    if st.sidebar.button("Check for Null Values"):
-        check_null_values(data)
-elif null_management_option == "Clean Data":
-    cleaning_option = st.sidebar.selectbox("Choose cleaning method", ["Drop missing values", "Fill missing values"])
-    data_cleaned = clean_data(data, cleaning_option)
-else:
-    pass
-
-# Save cleaned dataset
-st.sidebar.header("Save Cleaned Dataset")
-if st.sidebar.button("Prepare Cleaned Dataset for Download"):
-    save_cleaned_data(data_cleaned)
-else:
-    pass
-
-# Date management options in dropdown menu
-st.sidebar.header("Date Management")
-date_management_option = st.sidebar.selectbox("Choose date management option", ["Filter by Date", "Convert to Proper Date Type"])
-date_column = st.sidebar.selectbox("Select date column", options=data_cleaned.columns)
-start_date = st.sidebar.date_input("Start date")
-end_date = st.sidebar.date_input("End date")
-
-if date_management_option == "Filter by Date" and st.sidebar.button("Apply Date Filter"):
-    data_cleaned = filter_by_date(data_cleaned, date_column, start_date, end_date)
-    st.sidebar.success("Data filtered by date successfully!")
-elif date_management_option == "Convert to Proper Date Type" and st.sidebar.button("Convert Date Type"):
-    data_cleaned = convert_to_proper_date_type(data_cleaned, date_column)
-    st.sidebar.success("Date type conversion successful!")
-else:
-    st.sidebar.warning("This feature only works with dates")
-    
-# String cleaning options
-st.sidebar.header("String Cleaning")
-string_columns = st.sidebar.multiselect("Select columns to clean strings", data_cleaned.select_dtypes(include=['object']).columns)
-unwanted_content = st.sidebar.text_area("Enter unwanted content (regex supported)")
-
-if st.sidebar.button("Clean Strings"):
-    data_cleaned = clean_strings(data_cleaned, string_columns, unwanted_content)
-    st.sidebar.success("Strings cleaned successfully!")
-else:
-    pass
-
-st.markdown('---')
-st.header("Dataset Overview")
-st.dataframe(data.head())
-
-st.subheader("Dataset Description")
-st.write(data.describe())
-
-st.header("Data Visualization")
-sns.set_theme(style="darkgrid")
-
-def plot_chart(chart_type, data, x_column, y_column):
-    if chart_type == "Bar Chart":
-        chart = px.bar(data, x=x_column, y=y_column, title="Bar Chart")
-    elif chart_type == "Scatter Plot":
-        chart = px.scatter(data, x=x_column, y=y_column, title="Scatter Plot")
-    elif chart_type == "Line Chart":
-        chart = px.line(data, x=x_column, y=y_column, title="Line Chart")
-    elif chart_type == "Histogram":
-        chart = px.histogram(data, x=x_column, title="Histogram")
-    elif chart_type == "Box Plot":
-        chart = px.box(data, x=x_column, y=y_column, title="Box Plot")
-    st.plotly_chart(chart)
-
-chart_types = ["Bar Chart", "Scatter Plot", "Line Chart", "Histogram", "Box Plot"]
-for chart_type in chart_types:
-    st.subheader(chart_type)
-    x_column = st.selectbox(f"Select X-axis column for {chart_type}", data.columns, key=f'{chart_type}_x')
-    y_column = st.selectbox(f"Select Y-axis column for {chart_type}", data.columns, key=f'{chart_type}_y')
-    plot_chart(chart_type, data, x_column, y_column)

@@ -100,7 +100,7 @@ def clean_strings(data, columns, unwanted_content):
     for column in columns:
         data[column] = data[column].replace(unwanted_content, '', regex=True)
     return data
-with st.sidebar
+with st.sidebar:
     uploaded_file = st.file_uploader("Upload your CSV file", type=["csv"])
     if uploaded_file is not None:
         data = load_data(uploaded_file)

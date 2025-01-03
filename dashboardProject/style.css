@@ -1,48 +1,49 @@
 :root {
-    /* Light theme colors */
-    --bg-color-light: #f0f2f6;
-    --text-color-light: #333;
-    --alert-bg-color-light: #f9f9f9;
-    --alert-border-color-light: #ddd;
-    --sidebar-bg-color-light: #f8f9fa;
-    --button-bg-color-light: #4CAF50;
-    --button-hover-bg-color-light: #45a049;
-    --input-border-color-light: #ccc;
-    --dataframe-bg-color-light: #fff;
-    --dataframe-border-color-light: #ddd;
+    --bg-color: #f0f2f6;
+    --text-color: #333;
+    --alert-bg-color: #f9f9f9;
+    --alert-border-color: #ddd;
+    --sidebar-bg-color: #f8f9fa;
+    --button-bg-color: #4CAF50;
+    --button-hover-bg-color: #45a049;
+    --input-border-color: #ccc;
+    --dataframe-bg-color: #fff;
+    --dataframe-border-color: #ddd;
+}
 
-    /* Dark theme colors */
-    --bg-color-dark: #1e1e1e;
-    --text-color-dark: #f0f0f0;
-    --alert-bg-color-dark: #2e2e2e;
-    --alert-border-color-dark: #444;
-    --sidebar-bg-color-dark: #2e2e2e;
-    --button-bg-color-dark: #4CAF50;
-    --button-hover-bg-color-dark: #45a049;
-    --input-border-color-dark: #555;
-    --dataframe-bg-color-dark: #2e2e2e;
-    --dataframe-border-color-dark: #444;
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-color: #1e1e1e;
+        --text-color: #f0f0f0;
+        --alert-bg-color: #2e2e2e;
+        --alert-border-color: #444;
+        --sidebar-bg-color: #2e2e2e;
+        --button-bg-color: #4CAF50;
+        --button-hover-bg-color: #45a049;
+        --input-border-color: #555;
+        --dataframe-bg-color: #2e2e2e;
+        --dataframe-border-color: #444;
+    }
 }
 
 body {
-    background-color: var(--bg-color-light);
+    background-color: var(--bg-color);
     font-family: monospace, sans-serif;
 }
 
 h1, h2, h3, h4, h5, h6 {
-    color: var(--text-color-light);
+    color: var(--text-color);
 }
 
 .stAlert {
-    background-color: var(--alert-bg-color-light);
+    background-color: var(--alert-bg-color);
     border-radius: 5px;
-    border: 1px solid var(--alert-border-color-light);
+    border: 1px solid var(--alert-border-color);
     padding: 15px;
 }
 
-
 .stButton > button {
-    background-color: var(--button-bg-color-light);
+    background-color: var(--button-bg-color);
     color: white;
     border: none;
     border-radius: 5px;
@@ -56,53 +57,18 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .stButton > button:hover {
-    background-color: var(--button-hover-bg-color-light);
+    background-color: var(--button-hover-bg-color);
 }
 
 .stTextInput > div > input {
     padding: 10px;
-    border: 1px solid var(--input-border-color-light);
+    border: 1px solid var(--input-border-color);
     border-radius: 5px;
 }
 
 .stDataFrame {
-    background-color: var(--dataframe-bg-color-light);
-    border: 1px solid var(--dataframe-border-color-light);
+    background-color: var(--dataframe-bg-color);
+    border: 1px solid var(--dataframe-border-color);
     border-radius: 5px;
     padding: 10px;
-}
-
-/* Dark theme */
-@media (prefers-color-scheme: dark) {
-    body {
-        background-color: var(--bg-color-dark);
-    }
-
-    h1, h2, h3, h4, h5, h6 {
-        color: var(--text-color-dark);
-    }
-
-    .stAlert {
-        background-color: var(--alert-bg-color-dark);
-        border: 1px solid var(--alert-border-color-dark);
-    }
-
-    
-
-    .stButton > button {
-        background-color: var(--button-bg-color-dark);
-    }
-
-    .stButton > button:hover {
-        background-color: var(--button-hover-bg-color-dark);
-    }
-
-    .stTextInput > div > input {
-        border: 1px solid var(--input-border-color-dark);
-    }
-
-    .stDataFrame {
-        background-color: var(--dataframe-bg-color-dark);
-        border: 1px solid var(--dataframe-border-color-dark);
-    }
 }

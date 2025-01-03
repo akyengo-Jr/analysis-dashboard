@@ -79,14 +79,6 @@ def filter_by_date(data, date_column, start_date, end_date):
     mask = (data[date_column] >= start_date) & (data[date_column] <= end_date)
     return data.loc[mask]
 
-def add_date_features(data, date_column):
-    data[date_column] = pd.to_datetime(data[date_column], errors='coerce')
-    data['year'] = data[date_column].dt.year
-    data['month'] = data[date_column].dt.month
-    data['day'] = data[date_column].dt.day
-    data['weekday'] = data[date_column].dt.weekday
-    return data
-
 def convert_to_proper_date_type(data, date_column):
     data[date_column] = pd.to_datetime(data[date_column], errors='coerce')
     return data
@@ -114,22 +106,19 @@ if null_management_option == "Check for Null Values":
 elif null_management_option == "Clean Data":
     cleaning_option = st.sidebar.selectbox("Choose cleaning method", ["Drop missing values", "Fill missing values"])
     data_cleaned = clean_data(data, cleaning_option)
-
-# Convert data types options
-st.sidebar.header("Convert Data Types")
-convert_columns = st.sidebar.multiselect("Select columns to convert to numeric", data_cleaned.select_dtypes(include=['object']).columns)
-if st.sidebar.button("Convert Selected Columns"):
-    data_cleaned = convert_columns_to_numeric(data_cleaned, convert_columns)
-    st.sidebar.success("Selected columns converted to numeric successfully!")
+else:
+    pass
 
 # Save cleaned dataset
 st.sidebar.header("Save Cleaned Dataset")
 if st.sidebar.button("Prepare Cleaned Dataset for Download"):
     save_cleaned_data(data_cleaned)
+else:
+    pass
 
 # Date management options in dropdown menu
 st.sidebar.header("Date Management")
-date_management_option = st.sidebar.selectbox("Choose date management option", ["Filter by Date", "Add Date Features", "Convert to Proper Date Type"])
+date_management_option = st.sidebar.selectbox("Choose date management option", ["Filter by Date", "Convert to Proper Date Type"])
 date_column = st.sidebar.selectbox("Select date column", options=data_cleaned.columns)
 start_date = st.sidebar.date_input("Start date")
 end_date = st.sidebar.date_input("End date")
@@ -137,12 +126,11 @@ end_date = st.sidebar.date_input("End date")
 if date_management_option == "Filter by Date" and st.sidebar.button("Apply Date Filter"):
     data_cleaned = filter_by_date(data_cleaned, date_column, start_date, end_date)
     st.sidebar.success("Data filtered by date successfully!")
-elif date_management_option == "Add Date Features" and st.sidebar.button("Add Date Features"):
-    data_cleaned = add_date_features(data_cleaned, date_column)
-    st.sidebar.success("Date features added successfully!")
 elif date_management_option == "Convert to Proper Date Type" and st.sidebar.button("Convert Date Type"):
     data_cleaned = convert_to_proper_date_type(data_cleaned, date_column)
     st.sidebar.success("Date type conversion successful!")
+else:
+    pass
 
 # String cleaning options
 st.sidebar.header("String Cleaning")
@@ -152,6 +140,8 @@ unwanted_content = st.sidebar.text_area("Enter unwanted content (regex supported
 if st.sidebar.button("Clean Strings"):
     data_cleaned = clean_strings(data_cleaned, string_columns, unwanted_content)
     st.sidebar.success("Strings cleaned successfully!")
+else:
+    pass
 
 st.markdown('---')
 st.header("Dataset Overview")

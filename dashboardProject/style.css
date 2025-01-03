@@ -40,9 +40,6 @@ h1, h2, h3, h4, h5, h6 {
     padding: 15px;
 }
 
-.stSidebar {
-    background-color: var(--sidebar-bg-color-light);
-}
 
 .stButton > button {
     background-color: var(--button-bg-color-light);
@@ -90,9 +87,7 @@ h1, h2, h3, h4, h5, h6 {
         border: 1px solid var(--alert-border-color-dark);
     }
 
-    .stSidebar {
-        background-color: var(--sidebar-bg-color-dark);
-    }
+    
 
     .stButton > button {
         background-color: var(--button-bg-color-dark);

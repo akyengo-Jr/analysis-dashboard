@@ -1,9 +1,6 @@
 body {
     background-color: #f0f2f6;
     font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -19,6 +16,8 @@ h1, h2, h3, h4, h5, h6 {
 
 .stSidebar {
     background-color: #f8f9fa;
+    width: 100%; /* Make the sidebar flexible */
+    max-width: 300px; /* Set a maximum width */
 }
 
 .stButton > button {
@@ -28,7 +27,6 @@ h1, h2, h3, h4, h5, h6 {
     border-radius: 5px;
     padding: 10px 20px;
     text-align: center;
-    text-decoration: none;
     display: inline-block;
     font-size: 16px;
     margin: 4px 2px;
@@ -52,26 +50,9 @@ h1, h2, h3, h4, h5, h6 {
     padding: 10px;
 }
 
-/* Responsive design */
-@media only screen and (max-width: 600px) {
-    body {
-        padding: 10px;
-    }
-
-    .stButton > button {
-        font-size: 14px;
-        padding: 8px 16px;
-    }
-
-    .stTextInput > div > input {
-        padding: 8px;
-    }
-
-    .stDataFrame {
-        padding: 8px;
-    }
-
-    .stAlert {
-        padding: 10px;
+/* Responsive design for expanders */
+@media (max-width: 768px) {
+    .stExpander {
+        width: 100%;
     }
 }

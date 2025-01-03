@@ -143,33 +143,33 @@ with st.sidebar:
             if st.button("Prepare Cleaned Dataset for Download"):
                 save_cleaned_data(data_cleaned)
 
-    st.markdown('---')
-    st.header("Dataset Overview")
-    st.dataframe(data.head())
+st.markdown('---')
+st.header("Dataset Overview")
+st.dataframe(data.head())
 
-    st.subheader("Dataset Description")
-    st.write(data.describe())
+st.subheader("Dataset Description")
+st.write(data.describe())
 
-    st.header("Data Visualization")
-    sns.set_theme(style="darkgrid")
+st.header("Data Visualization")
+sns.set_theme(style="darkgrid")
 
-    def plot_chart(chart_type, data, x_column, y_column):
-        if chart_type == "Bar Chart":
-            chart = px.bar(data, x=x_column, y=y_column, title="Bar Chart")
-        elif chart_type == "Scatter Plot":
-            chart = px.scatter(data, x=x_column, y=y_column, title="Scatter Plot")
-        elif chart_type == "Line Chart":
-            chart = px.line(data, x=x_column, y=y_column, title="Line Chart")
-        elif chart_type == "Histogram":
-            chart = px.histogram(data, x=x_column, title="Histogram")
-        elif chart_type == "Box Plot":
-            chart = px.box(data, x=x_column, y=y_column, title="Box Plot")
-        st.plotly_chart(chart, use_container_width=True)
+def plot_chart(chart_type, data, x_column, y_column):
+    if chart_type == "Bar Chart":
+        chart = px.bar(data, x=x_column, y=y_column, title="Bar Chart")
+    elif chart_type == "Scatter Plot":
+        chart = px.scatter(data, x=x_column, y=y_column, title="Scatter Plot")
+    elif chart_type == "Line Chart":
+        chart = px.line(data, x=x_column, y=y_column, title="Line Chart")
+    elif chart_type == "Histogram":
+        chart = px.histogram(data, x=x_column, title="Histogram")
+    elif chart_type == "Box Plot":
+        chart = px.box(data, x=x_column, y=y_column, title="Box Plot")
+    st.plotly_chart(chart, use_container_width=True)
 
-    chart_types = ["Bar Chart", "Scatter Plot", "Line Chart", "Histogram", "Box Plot"]
-    for chart_type in chart_types:
-        st.subheader(chart_type)
-        x_column = st.selectbox(f"Select X-axis column for {chart_type}", data.columns, key=f'{chart_type}_x')
-        y_column = st.selectbox(f"Select Y-axis column for {chart_type}", data.columns, key=f'{chart_type}_y')
-        plot_chart(chart_type, data, x_column, y_column)
+chart_types = ["Bar Chart", "Scatter Plot", "Line Chart", "Histogram", "Box Plot"]
+for chart_type in chart_types:
+    st.subheader(chart_type)
+    x_column = st.selectbox(f"Select X-axis column for {chart_type}", data.columns, key=f'{chart_type}_x')
+    y_column = st.selectbox(f"Select Y-axis column for {chart_type}", data.columns, key=f'{chart_type}_y')
+    plot_chart(chart_type, data, x_column, y_column)
 

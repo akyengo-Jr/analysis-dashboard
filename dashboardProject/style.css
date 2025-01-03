@@ -1,48 +1,28 @@
-/* Define CSS variables for light and dark themes */
-:root {
-    --background-color-light: #f0f2f6;
-    --background-color-dark: #1e1e1e;
-    --font-color-light: #333;
-    --font-color-dark: #ddd;
-    --alert-background-color-light: #f9f9f9;
-    --alert-background-color-dark: #333;
-    --alert-border-color-light: #ddd;
-    --alert-border-color-dark: #444;
-    --sidebar-background-color-light: #f8f9fa;
-    --sidebar-background-color-dark: #2e2e2e;
-    --button-background-color: #4CAF50;
-    --button-hover-color: #45a049;
-    --input-border-color-light: #ccc;
-    --input-border-color-dark: #555;
-    --dataframe-background-color-light: #fff;
-    --dataframe-background-color-dark: #2b2b2b;
-    --dataframe-border-color-light: #ddd;
-    --dataframe-border-color-dark: #444;
-}
-
-/* Apply light theme by default */
 body {
-    background-color: var(--background-color-light);
+    background-color: #f0f2f6;
     font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 h1, h2, h3, h4, h5, h6 {
-    color: var(--font-color-light);
+    color: #333;
 }
 
 .stAlert {
-    background-color: var(--alert-background-color-light);
+    background-color: #f9f9f9;
     border-radius: 5px;
-    border: 1px solid var(--alert-border-color-light);
+    border: 1px solid #ddd;
     padding: 15px;
 }
 
 .stSidebar {
-    background-color: var(--sidebar-background-color-light);
+    background-color: #f8f9fa;
 }
 
 .stButton > button {
-    background-color: var(--button-background-color);
+    background-color: #4CAF50;
     color: white;
     border: none;
     border-radius: 5px;
@@ -56,47 +36,42 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .stButton > button:hover {
-    background-color: var(--button-hover-color);
+    background-color: #45a049;
 }
 
 .stTextInput > div > input {
     padding: 10px;
-    border: 1px solid var(--input-border-color-light);
+    border: 1px solid #ccc;
     border-radius: 5px;
 }
 
 .stDataFrame {
-    background-color: var(--dataframe-background-color-light);
-    border: 1px solid var(--dataframe-border-color-light);
+    background-color: #fff;
+    border: 1px solid #ddd;
     border-radius: 5px;
     padding: 10px;
 }
 
-/* Apply dark theme if preferred */
-@media (prefers-color-scheme: dark) {
+/* Responsive design */
+@media only screen and (max-width: 600px) {
     body {
-        background-color: var(--background-color-dark);
+        padding: 10px;
     }
 
-    h1, h2, h3, h4, h5, h6 {
-        color: var(--font-color-dark);
-    }
-
-    .stAlert {
-        background-color: var(--alert-background-color-dark);
-        border: 1px solid var(--alert-border-color-dark);
-    }
-
-    .stSidebar {
-        background-color: var(--sidebar-background-color-dark);
+    .stButton > button {
+        font-size: 14px;
+        padding: 8px 16px;
     }
 
     .stTextInput > div > input {
-        border: 1px solid var(--input-border-color-dark);
+        padding: 8px;
     }
 
     .stDataFrame {
-        background-color: var(--dataframe-background-color-dark);
-        border: 1px solid var(--dataframe-border-color-dark);
+        padding: 8px;
+    }
+
+    .stAlert {
+        padding: 10px;
     }
 }

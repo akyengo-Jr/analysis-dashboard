@@ -5,6 +5,7 @@ import streamlit as st
 import seaborn as sns
 import logging
 from io import BytesIO
+from datetime import datetime
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -23,6 +24,7 @@ def check_null_values(data):
     st.write("Summary of Null Values in Each Column:")
     st.write(null_summary)
     return null_summary
+
 def load_data(uploaded_file):
     """Load data from a CSV file."""
     try:
@@ -123,6 +125,29 @@ def plot_chart(chart_type, data, x_column, y_column):
         chart = px.box(data, x=x_column, y=y_column, title="Box Plot")
     st.plotly_chart(chart)
 
+# Date management functions
+def filter_by_date(data, date_column, start_date, end_date):
+    """Filter data based on a date range."""
+    data[date_column] = pd.to_datetime(data[date_column], errors='coerce')
+    mask = (data[date_column] >= start_date) & (data[date_column] <= end_date)
+    return data.loc[mask]
+
+def add_date_features(data, date_column):
+    """Add additional date-related features."""
+    data[date_column] = pd.to_datetime(data[date_column], errors='coerce')
+    data['year'] = data[date_column].dt.year
+    data['month'] = data[date_column].dt.month
+    data['day'] = data[date_column].dt.day
+    data['weekday'] = data[date_column].dt.weekday
+    return data
+
+# String cleaning functions
+def clean_strings(data, columns, unwanted_content):
+    """Clean strings by removing unwanted contents."""
+    for column in columns:
+        data[column] = data[column].replace(unwanted_content, '', regex=True)
+    return data
+
 # File uploader for CSV files
 uploaded_file = st.sidebar.file_uploader("Upload your CSV file", type=["csv"])
 if uploaded_file is not None:
@@ -130,7 +155,7 @@ if uploaded_file is not None:
 else:
     st.sidebar.warning("Please upload a CSV file.")
     st.stop()
-    
+
 # Check for null values.
 st.sidebar.header("Check for Null Values")
 if st.sidebar.button("Check Null Values"):
@@ -140,7 +165,6 @@ if st.sidebar.button("Check Null Values"):
 st.sidebar.header("Data Cleaning Options")
 cleaning_option = st.sidebar.selectbox("Choose cleaning method", ["Drop missing values", "Fill missing values"])
 data_cleaned = clean_data(data, cleaning_option)
-
 
 # Drop columns option
 st.sidebar.header("Drop Columns")
@@ -170,6 +194,29 @@ if st.sidebar.button("Convert Selected Columns"):
 st.sidebar.header("Save Cleaned Dataset")
 if st.sidebar.button("Prepare Cleaned Dataset for Download"):
     save_cleaned_data(data_cleaned)
+
+# Date management options
+st.sidebar.header("Date Management")
+date_column = st.sidebar.selectbox("Select date column", options=data_cleaned.columns)
+start_date = st.sidebar.date_input("Start date")
+end_date = st.sidebar.date_input("End date")
+
+if st.sidebar.button("Filter by Date"):
+    data_cleaned = filter_by_date(data_cleaned, date_column, start_date, end_date)
+    st.sidebar.success("Data filtered by date successfully!")
+
+if st.sidebar.button("Add Date Features"):
+    data_cleaned = add_date_features(data_cleaned, date_column)
+    st.sidebar.success("Date features added successfully!")
+
+# String cleaning options
+st.sidebar.header("String Cleaning")
+string_columns = st.sidebar.multiselect("Select columns to clean strings", data_cleaned.select_dtypes(include=['object']).columns)
+unwanted_content = st.sidebar.text_area("Enter unwanted content (regex supported)")
+
+if st.sidebar.button("Clean Strings"):
+    data_cleaned = clean_strings(data_cleaned, string_columns, unwanted_content)
+    st.sidebar.success("Strings cleaned successfully!")
 
 # Display dataset overview and statistics
 st.markdown('---')

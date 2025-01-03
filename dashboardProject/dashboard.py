@@ -75,14 +75,26 @@ def save_cleaned_data(data_cleaned):
 
 # Date management functions
 def filter_by_date(data, date_column, start_date, end_date):
-    data[date_column] = pd.to_datetime(data[date_column], errors='coerce')
-    mask = (data[date_column] >= start_date) & (data[date_column] <= end_date)
-    return data.loc[mask]
+    try:
+        data[date_column] = pd.to_datetime(data[date_column], errors='coerce')
+        start_date = pd.to_datetime(start_date)
+        end_date = pd.to_datetime(end_date)
+        mask = (data[date_column] >= start_date) & (data[date_column] <= end_date)
+        return data.loc[mask]
+    except Exception as e:
+        logger.error(f"Error filtering data by date: {e}")
+        st.sidebar.error(f"Error filtering data by date: {e}")
+        return pd.DataFrame()  # Return an empty DataFrame on error
 
 def convert_to_proper_date_type(data, date_column):
-    data[date_column] = pd.to_datetime(data[date_column], errors='coerce')
-    return data
-
+    try:
+        data[date_column] = pd.to_datetime(data[date_column], errors='coerce')
+        return data
+    except Exception as e:
+        logger.error(f"Error converting to proper date type: {e}")
+        st.sidebar.error(f"Error converting to proper date type: {e}")
+        return pd.DataFrame()  # Return an empty DataFrame on error
+    
 # String cleaning functions
 def clean_strings(data, columns, unwanted_content):
     for column in columns:
